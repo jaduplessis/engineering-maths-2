@@ -3,6 +3,7 @@ import sympy as sym
 from numpy import linalg as la
 import numpy as np
 from copy import deepcopy
+from scipy import integrate
 x, y, z, i, j, k, t = sym.symbols('x y z i j k t')
 
 
@@ -266,3 +267,31 @@ def work_integral(integral, parametrised_function, bounds):
     integralxyz = integralxy.subs(z, parametrised_function[2])
     s = sym.Integral(integralxyz, (t, bounds[0], bounds[1])).evalf()
     return s
+
+
+def double_integral(function, y_bounds, x_bounds):
+    return integrate.dblquad(function, x_bounds[0], x_bounds[1],
+                             y_bounds[0], y_bounds[1])[0]
+    # example function
+    # Function = lambda x, y: x + y
+    # x_bound = [1, 2]
+    # y_bound = [lambda x: 0, lambda x: 4 -x**2]
+
+
+def double_integral_parametrised(function, r_bounds, theta_bounds):
+    return integrate.dblquad(function, r_bounds[0], r_bounds[1],
+                             theta_bounds[0], theta_bounds[1])[0]
+    # example function
+    # Function = lambda t, r: np.sin(t) * r**2
+    # r_bound = [0, 1]
+    # t_bound = [0, math.pi]
+
+
+def triple_integral(function, x_bounds, y_bounds, z_bounds):
+    return integrate.tplquad(function, x_bounds[0], x_bounds[1], y_bounds[0], y_bounds[1],
+                             z_bounds[0], z_bounds[1])
+    # example function
+    # function = lambda x, y, z: x + y + z
+    # z_bounds = [lambda z, y: y - z, lambda z, y: y + z]
+    # y_bounds = [lambda y: 0, lambda y: y]
+    # x_bounds = [0, 1]
