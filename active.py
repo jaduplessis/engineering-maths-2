@@ -6,22 +6,133 @@ import math
 import numpy as np
 from numpy import linalg as la
 from scipy import integrate
-import scipy
+from sympy import cos, sin, pi
+from sympy.vector import ParametricRegion, vector_integrate
 
-#x, y, z, i, j, k, t = sym.symbols('x y z i j k t')
+x, y, z, i, j, k, t, u, v = sym.symbols('x y z i j k t u v')
 
 
+vector = [y - z + 2, y*z + 4, -x*z]
 
-
-function = lambda x, y, z: x + y + z
-z_bounds = [lambda z, y: y - z, lambda z, y: y + z]
-y_bounds = [lambda y: 0, lambda y: y]
-x_bounds = [0, 1]
+print(vt.curl(vector))
 
 
 
 
-print(triple_integral(function, x_bounds, y_bounds, z_bounds))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

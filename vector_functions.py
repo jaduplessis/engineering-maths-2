@@ -4,7 +4,9 @@ from numpy import linalg as la
 import numpy as np
 from copy import deepcopy
 from scipy import integrate
-x, y, z, i, j, k, t = sym.symbols('x y z i j k t')
+from sympy import cos, sin, pi
+from sympy.vector import ParametricRegion, vector_integrate
+x, y, z, i, j, k, t, u, v = sym.symbols('x y z i j k t u v')
 
 
 def magnitude(vector):
@@ -269,29 +271,56 @@ def work_integral(integral, parametrised_function, bounds):
     return s
 
 
-def double_integral(function, y_bounds, x_bounds):
-    return integrate.dblquad(function, x_bounds[0], x_bounds[1],
-                             y_bounds[0], y_bounds[1])[0]
-    # example function
-    # Function = lambda x, y: x + y
-    # x_bound = [1, 2]
-    # y_bound = [lambda x: 0, lambda x: 4 -x**2]
-
-
-def double_integral_parametrised(function, r_bounds, theta_bounds):
-    return integrate.dblquad(function, r_bounds[0], r_bounds[1],
-                             theta_bounds[0], theta_bounds[1])[0]
-    # example function
-    # Function = lambda t, r: np.sin(t) * r**2
-    # r_bound = [0, 1]
-    # t_bound = [0, math.pi]
+def double_integral(function, variable_1, bounds_1, variable_2, bounds_2):
+    return sym.integrate(function, (variable_1, bounds_1[0], bounds_1[1]),
+                         (variable_2, bounds_2[0], bounds_2[1]))
+    # example formatting
+    # function = y**2
+    # x_bounds = [y**2, y]
+    # y_bounds = [0, 1]
 
 
 def triple_integral(function, x_bounds, y_bounds, z_bounds):
-    return integrate.tplquad(function, x_bounds[0], x_bounds[1], y_bounds[0], y_bounds[1],
-                             z_bounds[0], z_bounds[1])
-    # example function
-    # function = lambda x, y, z: x + y + z
-    # z_bounds = [lambda z, y: y - z, lambda z, y: y + z]
-    # y_bounds = [lambda y: 0, lambda y: y]
-    # x_bounds = [0, 1]
+    return sym.integrate(function, (x, x_bounds[0], x_bounds[1]), (y, y_bounds[0], y_bounds[1]),
+                         (z, z_bounds[0], z_bounds[1]))
+    # example formatting
+    # function = sym.sqrt(x**2 + z**2) * x
+    # x_bonds = [0, z]
+    # y_bonds = [0, sym.pi * 2]
+    # z_bonds = [0, 3]
+
+
+def partial_differential(term, variable):
+    return sym.diff(term, variable)
+
+
+def flux_integral(vector, surface, u_bounds, v_bounds):
+    r_u = []
+    r_v = []
+    for axis in surface:
+        r_u.append(partial_differential(axis, u))
+        r_v.append(partial_differential(axis, v))
+
+    dA = cross_product(r_u, r_v)
+    integral = dot_product(vector, dA)
+    flux = double_integral(integral, u, u_bounds, v, v_bounds)
+    return flux
+    # example formatting
+    # vector = [3*u**2, v**2, 0]
+    # surface = [u, v, 2*u + 3*v]
+    # u_bounds = [0, 2]
+    # v_bounds = [-1, 1]
+
+
+def scalar_surface_integral(vector_field, surface, u_bounds, v_bounds):
+    region = ParametricRegion((surface[0], surface[1], surface[2]), (u, u_bounds[0], u_bounds[1]),
+                                  (v, v_bounds[0], v_bounds[1]))
+    surface_integral = vector_integrate(vector_field, region)
+    return surface_integral
+    # example formatting
+    # surface = [3*cos(v)*sin(u), 3*sin(v)*sin(u), 3*cos(u)]
+    # vector_field = 3*cos(u)
+    # u_bounds = [0, pi/2]
+    # v_bounds = [0, 2*pi]
+
+
