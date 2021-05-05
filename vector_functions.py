@@ -6,7 +6,7 @@ from copy import deepcopy
 from scipy import integrate
 from sympy import cos, sin, pi
 from sympy.vector import ParametricRegion, vector_integrate
-x, y, z, i, j, k, t, u, v = sym.symbols('x y z i j k t u v')
+x, y, z, i, j, k, t, u, v, a, b, c = sym.symbols('x y z i j k t u v a b c')
 
 
 def magnitude(vector):
@@ -80,6 +80,21 @@ def three_dimensional_gradient(function):
     return gradient
 
 
+def grad(function, dimensions):
+    if dimensions == 2:
+        diff_x = sym.diff(function, x)
+        diff_y = sym.diff(function, y)
+        gradient = [diff_x, diff_y]
+        return gradient
+
+    else:
+        diff_x = sym.diff(function, x)
+        diff_y = sym.diff(function, y)
+        diff_z = sym.diff(function, z)
+        gradient = [diff_x, diff_y, diff_z]
+        return gradient
+
+
 def directional_derivative(function, point, direction):
     if len(point) == 2:
         grad = two_dimensional_gradient(function)
@@ -87,6 +102,7 @@ def directional_derivative(function, point, direction):
         dot = dot_product(direction, grad) / mag
         sub_x = dot.subs(x, point[0])
         result = sub_x.subs(y, point[1])
+        return result
 
     elif len(point) == 3:
         grad = three_dimensional_gradient(function)
@@ -291,7 +307,10 @@ def triple_integral(function, x_bounds, y_bounds, z_bounds):
 
 
 def partial_differential(term, variable):
-    return sym.diff(term, variable)
+    partial = []
+    for dimension in term:
+        partial.append(sym.diff(dimension, variable))
+    return partial
 
 
 def flux_integral(vector, surface, u_bounds, v_bounds):
@@ -322,5 +341,43 @@ def scalar_surface_integral(vector_field, surface, u_bounds, v_bounds):
     # vector_field = 3*cos(u)
     # u_bounds = [0, pi/2]
     # v_bounds = [0, 2*pi]
+
+
+def stokes(line_c, vector_field, u_bounds, v_bounds):
+    curl_xyz = curl(vector_field)
+    curl_parametrised = []
+    for variable in curl_xyz:
+        curl_parametrised.append(variable.subs({x: line_c[0], y: line_c[1], z: line_c[0]}))
+    r_u = partial_differential(line_c, u)
+    r_v = partial_differential(line_c, v)
+
+    dA = cross_product(r_u, r_v)
+    integral = dot_product(curl_parametrised, dA)
+
+    solution = double_integral(integral, u, u_bounds, v, v_bounds)
+    return solution
+
+
+# HALF DONE JACOBIAN MATRIX CALCULATOR #
+
+# X = a*r*sin(u)*cos(v)
+# Y = b*r*sin(u)*cos(v)
+# Z = c*cos(u)
+# term = [X, Y, Z]
+# variables = [r, u, v]
+# jacobian = []
+# for i in range(3):
+#    new_row = []
+#    differential = term[i]
+#    for j in range(3):
+#        value = sym.diff(differential, variables[j])
+#        new_row.append(value)
+#    jacobian.append(new_row)
+
+# i = (vector1[1] * vector2[2]) - (vector1[2] * vector2[1])
+# j = (vector1[2] * vector2[0]) - (vector1[0] * vector2[2])
+# k = (vector1[0] * vector2[1]) - (vector1[1] * vector2[0])
+
+
 
 
