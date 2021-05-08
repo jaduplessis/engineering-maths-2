@@ -1,8 +1,9 @@
 import sympy as sym
 import re
 from sympy import cos, sin, pi, sympify, exp
-x, y, z, i, j, k, t, u, v, r, a, b, c, n, L, w, T \
-    = sym.symbols('x y z i j k t u v r a b c n L w T')
+x, y, z, i, j, k, t, u, v, r, a, b, c, n, L, w, T, s \
+    = sym.symbols('x y z i j k t u v r a b c n L w T s')
+A = sym.symbols('A', real=True, positive=True)
 
 
 def continuous(function, period):
@@ -181,13 +182,59 @@ def half_range_sine_series_discontinuous(function1, function2, period):
     return b_n, b_1
 
 
-def fourier_transform(function, limits):
+def fourier_transform(function1, function2, limits1, limits2):
     j = sym.sqrt(-1)
-    integral = function * exp(-j*w*t)
-    ans = sym.integrate(integral, (t, limits[0], limits[1])).args[0][0]
+    simplified1, simplified2 = 0, 0
+    integral = function1 * exp(-j * w * t)
+    ans = sym.integrate(integral, (t, limits1[0], limits1[1])).args
+    for args in ans:
+        if args[0] != 0 and type(args[0]) != sym.integrals.integrals.Integral:
+            simplified1 = sym.simplify(args[0])
+    print("Integral of function 1 is: {}".format(simplified1))
 
-    return sym.simplify(ans)
+    integral = function2 * exp(-j * w * t)
+    ans = sym.integrate(integral, (t, limits2[0], limits2[1])).args
+    for args in ans:
+        if args[0] != 0 and type(args[0]) != sym.integrals.integrals.Integral:
+            simplified2 = sym.simplify(args[0])
+    print("Integral of function 2 is: {}".format(simplified2))
+
+    total = sym.simplify(simplified1 + simplified2)
+    print("Fourier transform is: {}".format(total))
+    return total
+
+    # example format
+    # function1 = sin(a*t)
+    # limits1 = [-pi/a, pi/a]
+    # function2 = 0
+    # limits2 = [0, 0]
 
 
+def transfer_function(left_side, right_side):
+    j = sym.I
+    df2 = j**2 * w**2
+    df = j*w
+
+    Y = (left_side[0]*df2 + left_side[1]*df + left_side[2])
+    U = (right_side[0]*df2 + right_side[1]*df + right_side[2])
+    G = sym.radsimp(U/Y)
+    print(G)
+    return G
+    # example format - input coefficients
+    # left_side = [1, 3, 7]
+    # right_side = [0, 3, 2]
+    # [second order, first order, function]
 
 
+def laplace_transform(function):
+    return sym.laplace_transform(function, t, s, noconds=True)
+    # format
+    # j = sym.I
+    # func = t**2*exp(j*w*t)
+    # for H(t-a) = sym.Heaviside(t-a) | function = func * H(t-a)
+
+
+def inverse_laplace_transform(function):
+    return sym.inverse_laplace_transform(function, s, t)
+    # format
+    # A = sym.symbols('A', real=True, positive=True)
