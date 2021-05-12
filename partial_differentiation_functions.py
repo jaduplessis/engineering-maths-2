@@ -210,7 +210,7 @@ def fourier_transform(function1, function2, limits1, limits2):
     # limits2 = [0, 0]
 
 
-def transfer_function(left_side, right_side):
+def fourier_transfer_function(left_side, right_side):
     j = sym.I
     df2 = j**2 * w**2
     df = j*w
@@ -238,3 +238,65 @@ def inverse_laplace_transform(function):
     return sym.inverse_laplace_transform(function, s, t)
     # format
     # A = sym.symbols('A', real=True, positive=True)
+
+
+def initial_value_problems_laplace(pde, right_side, x_0, x_1):
+    F = sym.symbols('F')
+    df2 = s**2*F - s*x_0 - x_1
+    df1 = s*F - x_0
+    s_domain = laplace_transform(right_side)
+    transfer = pde[0] * df2 + pde[1] * df1 + pde[2] * F - s_domain
+    ans = sym.solve(transfer, F)
+    function = inverse_laplace_transform(ans[0])
+    print(function.evalf().simplify())
+    return function
+
+    # example format
+    # pde = [2, -2, 3]
+    # right_side = 0
+    # x_0 = 1
+    # x_1 = 0
+    # ! MAKE SURE TIMESTAMP IS 0 NOT 1 ! #
+
+
+def simultaneous_partial_differential(eq_1_coeff, result_1, eq_2_coeff, result_2, init_values):
+    X, Y = sym.symbols('X Y')
+    dX = s * X - init_values[0]
+    dY = s * Y - init_values[1]
+    s_result1 = laplace_transform(result_1)
+    s_result2 = laplace_transform(result_2)
+
+    eq1 = dX * eq_1_coeff[0] + dY * eq_1_coeff[1] + X * eq_1_coeff[2] + Y * eq_1_coeff[3] - s_result1
+    eq2 = dX * eq_2_coeff[0] + dY * eq_2_coeff[1] + X * eq_2_coeff[2] + Y * eq_2_coeff[3] - s_result2
+
+    solution = sym.solve([eq1, eq2], (X, Y))
+
+    x_function = inverse_laplace_transform(solution[X])
+    y_function = inverse_laplace_transform(solution[Y])
+    print(x_function.simplify())
+    print(y_function.simplify())
+
+    return x_function, y_function
+
+    # for the equations: dx/dt + dy/dt + 3x + 0y = 0
+    #                    dx/dt + 4dy/dt - 2x + 0y = e^-2t
+    #                    x(0) = 2, y(0) = 2
+    # equation_1_coefficients = [1, 1, 3, 0]
+    # result1 = 0
+    # equation_2_coefficients = [1, 4, -2, 0]
+    # result2 = exp(-2*t)
+    # initial_values = [2, 2]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
