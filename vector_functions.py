@@ -378,6 +378,22 @@ def stokes(line_c, vector_field, u_bounds, v_bounds):
 # j = (vector1[2] * vector2[0]) - (vector1[0] * vector2[2])
 # k = (vector1[0] * vector2[1]) - (vector1[1] * vector2[0])
 
+def jacobian(X,Y,Z,variables):
+
+    term = [X, Y, Z]
+    jacobian = []
+    for i in range(3):
+        new_row = []
+        differential = term[i]
+        for j in range(3):
+            value = sym.diff(differential, variables[j])
+            new_row.append(value)
+        jacobian.append(new_row)
+    array = np.array(jacobian)
+    det = triple_matrix_det(array)
+    det_1 = sym.simplify(det)
+    return det_1
+
 
 
 
