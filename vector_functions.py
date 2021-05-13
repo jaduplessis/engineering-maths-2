@@ -8,7 +8,7 @@ from sympy import cos, sin, pi, exp
 from sympy.vector import ParametricRegion, vector_integrate
 x, y, z, i, j, k, t, u, v, a, b, c = sym.symbols('x y z i j k t u v a b c')
 
-#check it out
+# get fucked
 def magnitude(vector):
     mag_squared = 0
     for units in vector:
