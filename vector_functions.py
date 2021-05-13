@@ -4,11 +4,11 @@ from numpy import linalg as la
 import numpy as np
 from copy import deepcopy
 from scipy import integrate
-from sympy import cos, sin, pi
+from sympy import cos, sin, pi, exp
 from sympy.vector import ParametricRegion, vector_integrate
 x, y, z, i, j, k, t, u, v, a, b, c = sym.symbols('x y z i j k t u v a b c')
 
-#made a comment
+
 def magnitude(vector):
     mag_squared = 0
     for units in vector:
@@ -263,23 +263,27 @@ def arc_length(function, lower_bound, upper_bound):
     return s
 
 
-def scalar_path_integral(integral, parametrised_function, bounds):
+def scalar_path_integral(vector_field, parametrised_function, bounds):
     mag_squared = 0
     for term in parametrised_function:
         mag_squared += (sym.diff(term, t))**2
     mag_diff_r = sym.sqrt(mag_squared)
-    integralx = integral.subs(x, parametrised_function[0])
+    integralx = vector_field.subs(x, parametrised_function[0])
     integralxy = integralx.subs(y, parametrised_function[1])
     integralxyz = integralxy.subs(z, parametrised_function[2])
     s = sym.Integral(integralxyz * mag_diff_r, (t, bounds[0], bounds[1])).evalf()
     return s
+    # example input
+    # vector_field = x**2 + y**2
+    # param = [t, 2*t, 0]
+    # bounds = [0, 1]
 
 
-def work_integral(integral, parametrised_function, bounds):
+def work_integral(vector_field, parametrised_function, bounds):
     diff_r = []
     for term in parametrised_function:
         diff_r.append(sym.diff(term, t))
-    work = dot_product(diff_r, integral)
+    work = dot_product(diff_r, vector_field)
     integralx = work.subs(x, parametrised_function[0])
     integralxy = integralx.subs(y, parametrised_function[1])
     integralxyz = integralxy.subs(z, parametrised_function[2])
@@ -306,7 +310,7 @@ def triple_integral(function, x_bounds, y_bounds, z_bounds):
     # z_bonds = [0, 3]
 
 
-def partial_differential(term, variable):
+def partial_differential_vector(term, variable):
     partial = []
     for dimension in term:
         partial.append(sym.diff(dimension, variable))
@@ -317,8 +321,8 @@ def flux_integral(vector, surface, u_bounds, v_bounds):
     r_u = []
     r_v = []
     for axis in surface:
-        r_u.append(partial_differential(axis, u))
-        r_v.append(partial_differential(axis, v))
+        r_u.append(partial_differential_vector(axis, u))
+        r_v.append(partial_differential_vector(axis, v))
 
     dA = cross_product(r_u, r_v)
     integral = dot_product(vector, dA)
@@ -348,8 +352,8 @@ def stokes(line_c, vector_field, u_bounds, v_bounds):
     curl_parametrised = []
     for variable in curl_xyz:
         curl_parametrised.append(variable.subs({x: line_c[0], y: line_c[1], z: line_c[0]}))
-    r_u = partial_differential(line_c, u)
-    r_v = partial_differential(line_c, v)
+    r_u = partial_differential_vector(line_c, u)
+    r_v = partial_differential_vector(line_c, v)
 
     dA = cross_product(r_u, r_v)
     integral = dot_product(curl_parametrised, dA)
@@ -358,42 +362,32 @@ def stokes(line_c, vector_field, u_bounds, v_bounds):
     return solution
 
 
-# HALF DONE JACOBIAN MATRIX CALCULATOR #
+def determinant(mat):
+    if len(mat) == 2:
+        c = mat[0][0]*mat[1][1]-mat[1][0]*mat[0][1]
+        return c
+    elif len(mat) == 3:
+        i = mat[1][1]*mat[2][2]-mat[1][2]*mat[2][1]
+        j = mat[1][0]*mat[2][2]-mat[1][2]*mat[2][0]
+        k = mat[1][0]*mat[2][1]-mat[1][1]*mat[2][0]
+        c = mat[0][0]*i - mat[0][1]*j + mat[0][2]*k
+        return c
+    else:
+        print('dickhead')
 
-# X = a*r*sin(u)*cos(v)
-# Y = b*r*sin(u)*cos(v)
-# Z = c*cos(u)
-# term = [X, Y, Z]
-# variables = [r, u, v]
-# jacobian = []
-# for i in range(3):
-#    new_row = []
-#    differential = term[i]
-#    for j in range(3):
-#        value = sym.diff(differential, variables[j])
-#        new_row.append(value)
-#    jacobian.append(new_row)
 
-# i = (vector1[1] * vector2[2]) - (vector1[2] * vector2[1])
-# j = (vector1[2] * vector2[0]) - (vector1[0] * vector2[2])
-# k = (vector1[0] * vector2[1]) - (vector1[1] * vector2[0])
-
-def jacobian(X,Y,Z,variables):
-
+def jacobian(X, Y, Z, variables):
     term = [X, Y, Z]
-    jacobian = []
+    jacob = []
+
     for i in range(3):
         new_row = []
         differential = term[i]
         for j in range(3):
             value = sym.diff(differential, variables[j])
             new_row.append(value)
-        jacobian.append(new_row)
-    array = np.array(jacobian)
-    det = triple_matrix_det(array)
+        jacob.append(new_row)
+
+    det = determinant(jacob)
     det_1 = sym.simplify(det)
     return det_1
-
-
-
-
