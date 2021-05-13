@@ -14,8 +14,8 @@ def continuous(function, period):
     integral_b = function * sin(n * t * 2*pi / period)
     integral_a = function * cos(n * t * 2*pi / period)
 
-    b_n = sym.integrate(integral_b, (t, -period / 2, period / 2))
-    a_n = sym.integrate(integral_a, (t, period / 2, -period / 2))
+    b_n = sym.integrate(integral_b, (t, -period / 2, period / 2)).simplify()
+    a_n = sym.integrate(integral_a, (t, period / 2, -period / 2)).simplify()
 
     if a_n != 0:
         sub_a1 = str(2 / period * a_n.args[0][0])
@@ -58,8 +58,8 @@ def discontinuous(function_1, function_2, period):
     if b_n2 != 0:
         b_n2 = b_n2.args[0][0]
 
-    a_n = 2 / period * (a_n1 + a_n2)
-    b_n = 2 / period * (b_n1 + b_n2)
+    a_n = (2 / period * (a_n1 + a_n2)).simplify()
+    b_n = (2 / period * (b_n1 + b_n2)).simplify()
 
     sub_a1 = str(a_n)
     sub_a2 = re.sub("cos\(pi\*n\)", "(-1)**n", sub_a1)
@@ -80,7 +80,7 @@ def half_range_sine_series_continuous(function, period):
     if b_n != 0:
         for args in b_n.args:
             if sympify(args[0]).is_real is None:
-                b_n = 2/period * args[0]
+                b_n = (2/period * args[0]).simplify()
                 string = str(b_n)
                 sub = re.sub("cos\(pi\*n\)", "(-1)**n", string)
                 B_n = re.sub("sin\(pi\*n\)", "0", sub)
@@ -102,7 +102,7 @@ def half_range_cosine_series_continuous(function, period):
     if a_n != 0:
         for args in a_n.args:
             if sympify(args[0]).is_real is None:
-                a_n = 2/period * args[0]
+                a_n = (2/period * args[0]).simplify()
                 string = str(a_n)
                 sub = re.sub("cos\(pi\*n\)", "(-1)**n", string)
                 A_n = re.sub("sin\(pi\*n\)", "0", sub)
