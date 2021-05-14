@@ -72,7 +72,7 @@ def discontinuous(function_1, function_2, period):
     print("Reformatted version of b_n is: {}".format(B_n))
 
     return a_0, a_n, b_n
-
+#change return a_0, a_n, b_n to return a_0, A_n, B_n
 
 def half_range_sine_series_continuous(function, period):
     integral = function * sin(n*t*pi / period)
