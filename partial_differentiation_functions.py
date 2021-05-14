@@ -70,9 +70,12 @@ def discontinuous(function_1, function_2, period):
     sub_b2 = re.sub("cos\(pi\*n\)", "(-1)**n", sub_b1)
     B_n = re.sub("sin\(pi\*n\)", "0", sub_b2)
     print("Reformatted version of b_n is: {}".format(B_n))
+    
+#A_n = sym.simplify(A_n) makes the output read better
+#B_n = sym.simplify(B_n)
 
     return a_0, a_n, b_n
-
+#change return a_0, a_n, b_n to return a_0, A_n, B_n
 
 def half_range_sine_series_continuous(function, period):
     integral = function * sin(n*t*pi / period)
