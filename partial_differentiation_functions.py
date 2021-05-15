@@ -5,6 +5,7 @@ x, y, z, i, j, k, t, u, v, r, a, b, c, n, L, w, T, s \
     = sym.symbols('x y z i j k t u v r a b c n L w T s')
 A = sym.symbols('A', real=True, positive=True)
 
+# andre loves biiiig sweaty balls
 
 def continuous(function, period):
     n = sym.symbols('n', integer=True)
