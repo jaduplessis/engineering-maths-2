@@ -5,7 +5,6 @@ x, y, z, i, j, k, t, u, v, r, a, b, c, n, L, w, T, s \
     = sym.symbols('x y z i j k t u v r a b c n L w T s')
 A = sym.symbols('A', real=True, positive=True)
 
-# andre loves biiiig sweaty balls
 
 def continuous(function, period):
     n = sym.symbols('n', integer=True)
@@ -64,16 +63,6 @@ def discontinuous(function_1, function_2, period):
     a_n = (2 / period * (a_n1 + a_n2)).simplify()
     b_n = (2 / period * (b_n1 + b_n2)).simplify()
 
-#    sub_a1 = str(a_n)
-#    sub_a2 = re.sub("cos\(pi\*n\)", "(-1)**n", sub_a1)
-#    A_n = re.sub("sin\(pi\*n\)", "0", sub_a2)
-#    print("Reformatted version of a_n is: {}".format(A_n))
-
-#    sub_b1 = str(b_n)
-#    sub_b2 = re.sub("cos\(pi\*n\)", "(-1)**n", sub_b1)
-#    B_n = re.sub("sin\(pi\*n\)", "0", sub_b2)
-#    print("Reformatted version of b_n is: {}".format(B_n))
-
     return a_0, a_n, b_n
 
 
@@ -90,7 +79,7 @@ def half_range_sine_series_continuous(function, period, variable):
         print("Reformatted version of a_n is: {}".format(b_n))
 
     integral_1 = function * sin(pi*variable / period)
-    b_1 = 2 / period * sym.integrate(integral_1, (variable, 0, period))
+    b_1 = sym.simplify(2 / period * sym.integrate(integral_1, (variable, 0, period)))
     print("b_n is: {}".format(b_n))
     print("b_1 is: {}".format(b_1))
     return b_n, b_1
@@ -99,7 +88,7 @@ def half_range_sine_series_continuous(function, period, variable):
 def half_range_cosine_series_continuous(function, period, variable):
     n = sym.symbols('n', integer=True)
     integral = function * cos(n * variable * pi / period)
-    a_n = sym.integrate(integral, (variable, 0, period))
+    a_n = sym.simplify(sym.integrate(integral, (variable, 0, period)))
 
     if a_n != 0:
         for args in a_n.args:
@@ -136,11 +125,7 @@ def half_range_cosine_series_discontinuous(function1, function2, period, variabl
             a_n2 = args[0]
             break
 
-    a_n = 2 / period * (a_n1 + a_n2)
-#    string = str(a_n)
-#    sub = re.sub("cos\(pi\*n\)", "(-1)**n", string)
-#    A_n = re.sub("sin\(pi\*n\)", "0", sub)
-#    print("Reformatted version of a_n is: {}".format(A_n))
+    a_n = sym.simplify(2 / period * (a_n1 + a_n2))
 
     a_01 = 2 / period * sym.integrate(function1, (variable, 0, period/2))
     a_02 = 2 / period * sym.integrate(function2, (variable, period/2, period))
@@ -149,6 +134,14 @@ def half_range_cosine_series_discontinuous(function1, function2, period, variabl
     print("a_0 is: {}".format(a_0))
 
     return a_n, a_0
+
+    # example formatting
+    # for f(x) = x     : 0 < x < a/2
+    #            x - a : a/2 < x < a
+    # function1 = x
+    # function2 = x-a
+    # period = a
+    # variable = x
 
 
 def half_range_sine_series_discontinuous(function1, function2, period, variable):
@@ -169,10 +162,6 @@ def half_range_sine_series_discontinuous(function1, function2, period, variable)
             break
 
     b_n = 2 / period * (b_n1 + b_n2)
-#    string = str(b_n)
-#    sub = re.sub("cos\(pi\*n\)", "(-1)**n", string)
-#    B_n = re.sub("sin\(pi\*n\)", "0", sub)
-#    print("Reformatted version of b_n is: {}".format(B_n))
 
     term1 = function1 * sin(pi*variable / period)
     term2 = function2 * sin(pi*variable / period)
@@ -184,6 +173,14 @@ def half_range_sine_series_discontinuous(function1, function2, period, variable)
     print("b_1 is: {}".format(b_1))
 
     return b_n, b_1
+
+    # example formatting
+    # for f(x) = x     : 0 < x < a/2
+    #            x - a : a/2 < x < a
+    # function1 = x
+    # function2 = x-a
+    # period = a
+    # variable = x
 
 
 def fourier_transform(function1, function2, limits1, limits2):
