@@ -214,7 +214,7 @@ def fourier_transform(function1, function2, limits1, limits2):
     # limits2 = [0, 0]
 
 
-def fourier_transfer_function(left_side, right_side):
+def frequency_transfer_function(left_side, right_side):
     j = sym.I
     df2 = j**2 * w**2
     df = j*w
