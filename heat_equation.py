@@ -86,6 +86,10 @@ if re.search('sin', str(X)):
             print("Final solution to u(x,t): {}".format(final))
         else:
             b_n, b_1 = pdf.half_range_sine_series_continuous(function, period, x)
+            X = X.subs({A: 1, B: 1, C: 1, D: 1})
+            eq = (diff - b_n)
+            solution = sym.solve(eq, dict=True)[0]
+            print("u(x,t) is: summation of {}".format(solution[b] * X * total_function.subs(b, 1)))
 
     else:
         b_n, b_1 = pdf.half_range_sine_series_discontinuous(function[0], function[1], function[2], function[3])

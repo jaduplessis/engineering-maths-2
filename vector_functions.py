@@ -8,7 +8,7 @@ from sympy import cos, sin, pi, exp
 from sympy.vector import ParametricRegion, vector_integrate
 x, y, z, i, j, k, t, u, v, a, b, c = sym.symbols('x y z i j k t u v a b c')
 
-#send it 
+# send it
 def magnitude(vector):
     mag_squared = 0
     for units in vector:
@@ -351,7 +351,7 @@ def stokes(line_c, vector_field, u_bounds, v_bounds):
     curl_xyz = curl(vector_field)
     curl_parametrised = []
     for variable in curl_xyz:
-        curl_parametrised.append(variable.subs({x: line_c[0], y: line_c[1], z: line_c[0]}))
+        curl_parametrised.append(variable.subs({x: line_c[0], y: line_c[1], z: line_c[2]}))
     r_u = partial_differential_vector(line_c, u)
     r_v = partial_differential_vector(line_c, v)
 

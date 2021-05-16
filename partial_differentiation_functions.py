@@ -282,6 +282,7 @@ def simultaneous_partial_differential(eq_1_coeff, result_1, eq_2_coeff, result_2
     # for the equations: dx/dt + dy/dt + 3x + 0y = 0
     #                    dx/dt + 4dy/dt - 2x + 0y = e^-2t
     #                    x(0) = 2, y(0) = 2
+
     # equation_1_coefficients = [1, 1, 3, 0]
     # result1 = 0
     # equation_2_coefficients = [1, 4, -2, 0]
