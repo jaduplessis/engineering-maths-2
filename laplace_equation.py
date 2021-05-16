@@ -1,33 +1,43 @@
 import sympy as sym
 import re
-from sympy import cos, sin, pi, sympify, exp, cosh, sinh
+from sympy import cos, sin, pi, exp, cosh, sinh
 import partial_differentiation_functions as pdf
 x, y, z, i, j, k, t, u, v, r, a, b, c, n, L, w, T, s \
     = sym.symbols('x y z i j k t u v r a b c n L w T s')
+
+# warning. not a reliable code. a_0 values incorrect but i ceebs to fucken fix it. should give the right summation
+# result. needs more testing though
 
 k = sym.symbols('k', real=True, positive=True)
 c = sym.symbols('c', real=True, nonzero=True)
 n = sym.symbols('n', integer=True)
 A, B, C, D = sym.symbols('A B C D')
-X = A*cos(k*x) + B*sin(k*x)
-Y = C*cosh(k*y) + D*sinh(k*y)
+
+homogeneous = 'Y'
+if homogeneous == 'X':
+    X = A*cos(k*x) + B*sin(k*x)
+    Y = C*cosh(k*y) + D*sinh(k*y)
+else:
+    X = A*cosh(k*x) + B*sinh(k*x)
+    Y = C*cos(k*y) + D*sin(k*y)
+
 u_y = sym.diff(Y, y)
 u_x = sym.diff(X, x)
 
 period = pi
-function = [x, a-x, a, x]
+function = sin(x)
 
-conditions = {X: {"term": 'X', "variable": x, "values": {0: 0, a: 0}},
-              Y: {"term": 'Y', "variable": y, "values": {0: 0, a: function}},
-              u_x: {"term": 'u_x', "variable": None},  # x, "values": {0: 0, pi: 0}},
-              u_y: {"term": 'u_y', "variable": None}  # y, "values": {0: 0}}
-              }
-
-#conditions = {X: {"term": 'X', "variable": x, "values": {0: 0, pi: 0}},
-#              T: {"term": 'T', "variable": t, "values": {0: 0}},
-#              u_x: {"term": 'u_x', "variable": None}, # x, "values": {0: 0, pi: 0}},
-#              u_t: {"term": 'u_t', "variable": t, "values": {0: sin(x)}}
+# conditions = {X: {"term": 'X', "variable": None}, #  x, "values": {0: 0, a: 0}},
+#              Y: {"term": 'Y', "variable": None}, #  y, "values": {0: 0, a: function}},
+#              u_x: {"term": 'u_x', "variable": x, "values": {0: 0, a: function}},
+#              u_y: {"term": 'u_y', "variable": y, "values": {0: 0, pi: 0}}
 #              }
+
+conditions = {X: {"term": 'X', "variable": None},  # x, "values": {0: 0, a: 0}},
+              Y: {"term": 'Y', "variable": None},  # y, "values": {0: 0, a: function}},
+              u_x: {"term": 'u_x', "variable": x, "values": {0: 0, a: function}},
+              u_y: {"term": 'u_y', "variable": y, "values": {0: 0, pi: 0}}
+              }
 
 
 for keys, values in conditions.items():
@@ -71,7 +81,12 @@ elif function_type == 'u_x':
 else:
     diff = sym.diff(total_function, y).subs(function_variable, function_value)
 
-if re.search('sin', str(X)):
+if homogeneous == 'X':
+    series = X
+elif homogeneous == 'Y':
+    series = Y
+
+if re.search('sin', str(series)):
     bn = []
     if type(function) is not list:
         for i in [1, 2, 3]:
@@ -85,21 +100,21 @@ if re.search('sin', str(X)):
             print("Final solution to u(x,t): {}".format(final))
         else:
             b_n, b_1 = pdf.half_range_sine_series_continuous(function, period, x)
-            X = X.subs({A: 1, B: 1, C: 1, D: 1})
-            print(diff)
+            X = series.subs({A: 1, B: 1, C: 1, D: 1})
+
             eq = (diff - b_n)
             solution = sym.solve(eq, dict=True)[0]
             print("u(x,t) is: summation of {}".format(solution[b] * X * total_function.subs(b, 1)))
 
     else:
         b_n, b_1 = pdf.half_range_sine_series_discontinuous(function[0], function[1], function[2], function[3])
-        X = X.subs({A: 1, B: 1, C: 1, D: 1})
+        X = series.subs({A: 1, B: 1, C: 1, D: 1})
         eq = (diff - b_n)
         solution = sym.solve(eq, dict=True)[0]
         print("u(x,t) is: summation of {}".format(solution[b]*X*total_function.subs(b, 1)))
 
 
-elif re.search('cos', str(X)):
+elif re.search('cos', str(series)):
     an = []
     if type(function) is not list:
         for i in [1, 2, 3]:
@@ -114,7 +129,9 @@ elif re.search('cos', str(X)):
         else:
             a_n, a_0 = pdf.half_range_cosine_series_continuous(function, period, x)
             const = a_0 / 2
-            print("Result is: {} + summation of {}".format(const, a_n*total_function.subs(b, 1)))
+            X = series.subs({A: 1, B: 1, C: 1, D: 1, b: 1})
+            eq = diff / X
+            print("Result is: {} + summation of {}".format(const, (a_n/eq*total_function).subs(b, 1)))
 
     else:
         a_n, a_0 = pdf.half_range_cosine_series_discontinuous(function[0], function[1], function[2], function[3])
