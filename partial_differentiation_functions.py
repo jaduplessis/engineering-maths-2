@@ -6,7 +6,7 @@ x, y, z, i, j, k, t, u, v, r, a, b, c, n, L, w, T, s \
 A = sym.symbols('A', real=True, positive=True)
 
 
-def continuous(function, period):
+def continuous_fourier_series(function, period):
     n = sym.symbols('n', integer=True)
     a_0 = sym.integrate(function, (t, -period / 2, period / 2))
     a_0 = 2 / period * a_0
@@ -20,18 +20,16 @@ def continuous(function, period):
 
     if a_n != 0:
         a_n = 2 / period * a_n.args[0][0]
-#        sub_a2 = re.sub(r"cos\(pi\*n\)", "(-1)**n", sub_a1)
-#        a_n = re.sub("sin\(pi\*n\)", "0", sub_a2)
 
     if b_n != 0:
         b_n = 2 / period * b_n.args[0][0]
-#        sub_b2 = re.sub(r"cos\(pi\*n\)", "(-1)**n", sub_b1)
-#        b_n = re.sub("sin\(pi\*n\)", "0", sub_b2)
 
+    print("a_n value is: {}".format(a_n))
+    print("b_n value is: {}".format(b_n))
     return a_n, b_n
 
 
-def discontinuous(function_1, function_2, period):
+def discontinuous_fourier_series(function_1, function_2, period):
     n = sym.symbols('n', integer=True)
     a_01 = sym.integrate(function_1, (t, -period / 2, 0))
     a_02 = sym.integrate(function_2, (t, 0, period / 2))
