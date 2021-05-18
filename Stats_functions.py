@@ -31,7 +31,7 @@ def mean(args):
     return val_sum / len(args)
 
 
-def median(*args):
+def median(args):
     args = sorted(args)
     if len(args) % 2 == 0:
         i = round((len(args) + 1) / 2)
@@ -55,8 +55,8 @@ def standard_deviation(args):
     return math.sqrt(variance(args))
 
 
-def coefficient_variation(*args):
-    return standard_deviation(*args) / mean(*args)
+def coefficient_variation(args):
+    return standard_deviation(args) / mean(args)
 
 
 def covariance(list1, list2):
@@ -75,9 +75,28 @@ def correlation_coefficient(list_1, list_2):
     return covariance(list_1, list_2) / (s1 * s2)
 
 
-def fisher_transformation(correlation_coeff, pearsons_coeff, significance, sample_size):
-    r = correlation_coeff
-    rho = pearsons_coeff
+def pearson_correlation_coefficient(list1, list2):
+    x_mean = mean(list1)
+    t_mean = mean(list2)
+    num = 0
+    den1 = 0
+    den2 = 0
+    for i in range(len(list1)):
+        num += (list1[i] - x_mean)*(list2[i] - t_mean)
+        den1 += (list1[i] - x_mean)**2
+        den2 += (list2[i] - t_mean)**2
+    r = num / (math.sqrt(den1)* math.sqrt(den2))
+    return r
+
+
+def fisher_approximation(pearsons_coeff):
+    X = 0.5 * math.log((1+pearsons_coeff)/(1-pearsons_coeff))
+    return X
+
+
+def fisher_transformation(pearson_correlation_coeff, correlated, significance, sample_size):
+    r = pearson_correlation_coeff
+    rho = correlated
     statistic = 0.5 * (math.log((1+r) / (1-r)) - math.log((1 + rho) / (1 - rho))) * math.sqrt(sample_size - 3)
     z_score = p_value_to_z_score(1-significance/2)
     if abs(statistic) < abs(z_score):
@@ -85,15 +104,19 @@ def fisher_transformation(correlation_coeff, pearsons_coeff, significance, sampl
     else:
         print("Reject null hypothesis")
     return statistic, z_score
+    # example format
+    # pearson_correlation_coeff = -1.30
+    # rho = 0 | this suggests null hypothesis is that they are uncorrelated
+    # significance = 0.10
+    # sample_size - 5
+
+def normalize_list(args):
+    sd_list = standard_deviation(args)
+    return [(i - mean(args)) / sd_list for i in args]
 
 
-def normalize_list(*args):
-    sd_list = standard_deviation(*args)
-    return [(i - mean(*args)) / sd_list for i in args]
-
-
-def sample_error(*args):
-    sd_list = standard_deviation(*args)
+def sample_error(args):
+    sd_list = standard_deviation(args)
     return sd_list / math.sqrt(len(args))
 
 
@@ -128,16 +151,22 @@ def get_z_score(sample, population_mean):
     return (sample_mean - population_mean) / (sd / math.sqrt(sample_size))
 
 
-def get_t_score(sample, population_mean):
-    sample_mean = mean(*sample)
-    sample_deviation = standard_deviation(*sample)
+def t_critical_value(significance_value, dof, number_of_tails):
+    significance_value = significance_value / number_of_tails
+    critical_value = abs(stats.t.ppf(significance_value, dof))
+    return critical_value
+
+
+def get_t_score_from_data(sample, population_mean):
+    sample_mean = mean(sample)
+    sample_deviation = standard_deviation(sample)
     sample_size = len(sample)
     return(sample_mean - population_mean) / (sample_deviation / math.sqrt(sample_size))
 
 
-def t_critical_value(significance_value, dof):
-    critical_value = abs(stats.t.ppf(significance_value, dof))
-    return critical_value
+def t_statistic(sample_mean, population_mean, sample_deviation, sample_size):
+    T = (population_mean - sample_mean) / (sample_deviation / math.sqrt(sample_size))
+    return T
 
 
 def bootstrap_confidence_interval(sample, significance):
@@ -168,6 +197,8 @@ def independence_test(significance_value, data): #data takes two sets of values 
     stat, p, dof, expected = chi2_contingency(data)
     # interpret p-value
     print("p value is " + str(p))
+    critical = chi2_critical_value(1-significance_value, dof)
+    print("Critical value is {}. Test statisitic is {}. Therefore".format(critical, stat))
     if p <= significance_value:
         print('Dependent (reject H0)')
     else:
@@ -175,24 +206,52 @@ def independence_test(significance_value, data): #data takes two sets of values 
     return stat, dof
 
 
-def xbar(sample):
+def xbar(sample_data, groupings):
     total = 0
     Total = 0
-    for i in range(len(sample)):
-        total += sample[i] * i
-        Total += sample[i]
+    for i in range(len(sample_data)):
+        total += sample_data[i] * groupings[i]
+        Total += sample_data[i]
     mu = total / Total
     return Total, mu
+    # example
+    # groupings = [0, 1, 2, 3, 4]
+    # observed = [873, 77, 32, 16, 2]
 
 
-def poisson_probability(sample):
-    mu = xbar(sample)[1]
-    total = xbar(sample)[0]
+def poisson_distribution(sample, groupings):
+    mu = xbar(sample, groupings)[1]
+    total = xbar(sample, groupings)[0]
     expected = []
     for i in range(len(sample)):
         p = math.exp(-mu) * (mu ** i) / math.factorial(i)
         expected.append(round(p * total, 2))
     return expected
+    # example
+    # observed = [873, 77, 32, 16, 2]
+    # groupings = [0, 1, 2, 3, 4]
+
+
+def normal_distribution(data, values_upper_bounds, mean, standard_deviation):
+    expected = []
+    total = sum(data)
+    prior_p = 0
+    length = len(values_upper_bounds)
+    for i in range(length):
+        z_score = (values_upper_bounds[i]-mean)/standard_deviation
+        cumulative_p_value = z_score_to_p_value(z_score)
+        if i == length - 1:
+            p_value = 1 - prior_p
+        else:
+            p_value = cumulative_p_value - prior_p
+        prior_p = cumulative_p_value
+        expected.append(p_value*total)
+    return expected
+    # example format
+    # observed data = [10, 32, 48, 10]
+    # data_categories = [850, 900, 950, 1000]
+    # s = math.sqrt(1625.3)
+    # mean = 904
 
 
 def goodness_of_fit(observed, expected, significance, dof):
@@ -200,3 +259,17 @@ def goodness_of_fit(observed, expected, significance, dof):
     critical_value = chi2_critical_value(confidence, dof)
     statistic, pvalue = chisquared_test(observed, expected, significance)
     return statistic, critical_value
+
+
+def statistically_significant(significance, sample1_size, sample1_mean, sample1_sd,
+                              sample2_size, sample2_mean, sample2_sd, number_of_tails):
+    global_deviation = math.sqrt(sample1_sd**2/sample1_size + sample2_sd**2/sample2_size)
+    test_statistic = abs(sample1_mean-sample2_mean)/global_deviation
+    critical_value = t_critical_value(significance, sample2_size-1, number_of_tails)
+    if test_statistic < critical_value:
+        print("Null hypothesis cannot be rejected")
+    else:
+        print("Null hypothesis can be rejected")
+    print("Test statistic is: {}. Critical value is {}.".format(test_statistic, critical_value))
+
+
