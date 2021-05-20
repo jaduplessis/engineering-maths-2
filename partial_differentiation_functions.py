@@ -247,7 +247,9 @@ def initial_value_problems_laplace(pde, right_side, x_0, x_1):
     df1 = s*F - x_0
     s_domain = laplace_transform(right_side)
     transfer = pde[0] * df2 + pde[1] * df1 + pde[2] * F - s_domain
+    print(transfer.simplify())
     ans = sym.solve(transfer, F)
+    print(ans)
     function = inverse_laplace_transform(ans[0])
     print(function.evalf().simplify())
     return function

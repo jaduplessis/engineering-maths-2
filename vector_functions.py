@@ -15,7 +15,7 @@ def magnitude(vector):
     for units in vector:
         square = units*units
         mag_squared += square
-    return math.sqrt(mag_squared)
+    return sym.sqrt(mag_squared)
 
 
 def dot_product(vector1, vector2):
@@ -381,14 +381,14 @@ def stokes(line_c, vector_field, u_bounds, v_bounds):
     # v_bounds = [0, 2*pi]
 
 
-def gauss(vector_field, r_bounds, u_bounds, v_bounds):
-    parameterised = [r * sin(u) * cos(v), r * sin(u) * sin(v), r * cos(u)]
+def gauss(vector_field, r_bounds, u_bounds, v_bounds, parameterised):
     div = divergent(vector_field)
+    print(div)
     subs = div.subs({x: parameterised[0], y: parameterised[1], z: parameterised[2]})
     simplified = sym.simplify(subs)
-    changed = r ** 2 * sin(u)
+    changed = jacobian(parameterised, [r, u, v])
     integral = simplified * changed
-
+    print(integral)
     ans = sym.integrate(integral, (r, r_bounds[0], r_bounds[1]), (u, u_bounds[0], u_bounds[1]),
                         (v, v_bounds[0], v_bounds[1]))
     return ans
@@ -397,6 +397,7 @@ def gauss(vector_field, r_bounds, u_bounds, v_bounds):
     # u_bounds = [0, pi]
     # v_bounds = [0, 2*pi]
     # vector_field = [x*y**2, y*cos(z)+y*z**2, x**2*z-sin(z)]
+    # parameterised = [r * sin(u) * cos(v), r * sin(u) * sin(v), r * cos(u)]
 
 
 def determinant(mat):
@@ -415,7 +416,6 @@ def determinant(mat):
 
 def jacobian(term, variables):
     jacob = []
-
     for i in range(3):
         new_row = []
         differential = term[i]

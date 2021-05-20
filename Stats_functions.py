@@ -292,6 +292,7 @@ def paired_t_test(data_1, data_2):
     sd = standard_deviation(difference)
     test_stat = t_statistic(0, x_bar, sd, len(data_1))
     t_crit = t_critical_value(0.05, len(data_1)-1, 2)
+    print("Test statistic is: {}. Critical value is: {}".format(test_stat, t_crit))
     if test_stat < t_crit:
         print("Accept null hypothesis. mu = 0. No difference")
     else:
