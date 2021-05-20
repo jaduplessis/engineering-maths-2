@@ -273,3 +273,31 @@ def statistically_significant(significance, sample1_size, sample1_mean, sample1_
     print("Test statistic is: {}. Critical value is {}.".format(test_statistic, critical_value))
 
 
+def residual(function, x_data, y_data):
+    residuals = []
+    for i in range(len(x_data)):
+        residuals.append(abs(function(x_data[i], y_data[i])))
+    return residuals
+    # example code
+    # x_data = [1, 2, 3]
+    # y_data = [20, 30, 70]
+    # function = lambda X, Y: 25*X - 10 - Y
+
+
+def paired_t_test(data_1, data_2):
+    difference = []
+    for i in range(len(data_1)):
+        difference.append(abs(data_1[i]-data_2[i]))
+    x_bar = mean(difference)
+    sd = standard_deviation(difference)
+    test_stat = t_statistic(0, x_bar, sd, len(data_1))
+    t_crit = t_critical_value(0.05, len(data_1)-1, 2)
+    if test_stat < t_crit:
+        print("Accept null hypothesis. mu = 0. No difference")
+    else:
+        print("Reject null hypothesis. mu is different")
+    # This test assumes there is no difference between the data sets
+    # mu is the mean differences between the sets of values
+    # data1 = [140, 190, 50, 80]
+    # data2 = [145, 192, 62, 87]
+
