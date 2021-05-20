@@ -14,8 +14,9 @@ T = C*exp(-k**2*alpha**2*t)
 u_t = sym.diff(T, t)
 u_x = sym.diff(X, x)
 
-function = [x, a-x, a, x]
-period = a
+function = x**2*(L-x)**2*(x-L/2)
+function_variable = x
+period = L
 
 # conditions = {X: {"term": 'X', "variable": x, "values": {0: 0, a: 0}},
 #              T: {"term": 'T', "variable": None},  # t, "values": {0: sin(x)}},
@@ -23,9 +24,9 @@ period = a
 #              u_t: {"term": 'u_t', "variable": t, "values": {0: function}}
 #              }
 
-conditions = {X: {"term": 'X', "variable": x, "values": {0: function}},
-              T: {"term": 'T', "variable": None},  # t, "values": {0: 0}},
-              u_x: {"term": 'u_x', "variable": x, "values": {0: 0, a: 0}},
+conditions = {X: {"term": 'X', "variable": None},  # x, "values": {0: 0}},
+              T: {"term": 'T', "variable": t, "values": {0: function}},
+              u_x: {"term": 'u_x', "variable": x, "values": {0: 0, L: 0}},
               u_t: {"term": 'u_t', "variable": None}  # t, "values": {0: sin(x)}}
               }
 
@@ -54,11 +55,11 @@ for keys, values in conditions.items():
                 else:
                     function = results
                     function_value = initial_value
-                    function_variable = values['variable']
+#                    function_variable = values['variable']
                     function_type = values['term']
             except:
                 function_value = initial_value
-                function_variable = values['variable']
+#                function_variable = values['variable']
                 function_type = values['term']
 
 total_function = b*(T*X).subs({A: 1, B: 1, C: 1, D: 1})

@@ -6,7 +6,8 @@ from copy import deepcopy
 from scipy import integrate
 from sympy import cos, sin, pi, exp
 from sympy.vector import ParametricRegion, vector_integrate
-x, y, z, i, j, k, t, u, v, a, b, c = sym.symbols('x y z i j k t u v a b c')
+x, y, z, i, j, k, t, u, v, a, b, c, r = sym.symbols('x y z i j k t u v a b c r')
+
 
 # send it
 def magnitude(vector):
@@ -31,9 +32,9 @@ def dot_product(vector1, vector2):
 
 def cross_product(vector1, vector2):
     if len(vector1) == 3 and len(vector2) == 3:
-        i = (vector1[1]*vector2[2]) - (vector1[2]*vector2[1])
-        j = (vector1[2]*vector2[0]) - (vector1[0]*vector2[2])
-        k = (vector1[0]*vector2[1]) - (vector1[1]*vector2[0])
+        i = sym.simplify((vector1[1]*vector2[2]) - (vector1[2]*vector2[1]))
+        j = sym.simplify((vector1[2]*vector2[0]) - (vector1[0]*vector2[2]))
+        k = sym.simplify((vector1[0]*vector2[1]) - (vector1[1]*vector2[0]))
         return [i, j, k]
     else:
         print("Vector must have 3 dimensions.")
@@ -287,7 +288,7 @@ def work_integral(vector_field, parametrised_function, bounds):
     integralx = work.subs(x, parametrised_function[0])
     integralxy = integralx.subs(y, parametrised_function[1])
     integralxyz = integralxy.subs(z, parametrised_function[2])
-    s = sym.Integral(integralxyz, (t, bounds[0], bounds[1])).evalf()
+    s = sym.integrate(integralxyz, (t, bounds[0], bounds[1]))
     return s
 
 
@@ -317,22 +318,35 @@ def partial_differential_vector(term, variable):
     return partial
 
 
-def flux_integral(vector, surface, u_bounds, v_bounds):
+def dA_area_elements(surface):
     r_u = []
     r_v = []
     for axis in surface:
-        r_u.append(partial_differential_vector(axis, u))
-        r_v.append(partial_differential_vector(axis, v))
+        r_u.append(sym.diff(axis, u))
+        r_v.append(sym.diff(axis, v))
+    dA = cross_product(r_u, r_v)
+    return dA
+
+
+def flux_integral(vector_field, surface, u_bounds, v_bounds, param):
+    r_u = []
+    r_v = []
+
+    for axis in surface:
+        r_u.append(sym.diff(axis, u))
+        r_v.append(sym.diff(axis, v))
 
     dA = cross_product(r_u, r_v)
-    integral = dot_product(vector, dA)
+    integral = dot_product(vector_field, dA)
+    integral = integral.subs({x: param[0], y: param[1], z:param[2]})
     flux = double_integral(integral, u, u_bounds, v, v_bounds)
     return flux
     # example formatting
-    # vector = [3*u**2, v**2, 0]
-    # surface = [u, v, 2*u + 3*v]
-    # u_bounds = [0, 2]
-    # v_bounds = [-1, 1]
+    # surface = [u*cos(v), u*sin(v), 0]
+    # field = [x*exp(y), y*exp(x), x**2]
+    # u_bounds = [0, 1]
+    # param = [u*cos(v), u*sin(v), 0]
+    # v_bounds = [0, 2*pi]
 
 
 def scalar_surface_integral(vector_field, surface, u_bounds, v_bounds):
@@ -360,24 +374,46 @@ def stokes(line_c, vector_field, u_bounds, v_bounds):
 
     solution = double_integral(integral, u, u_bounds, v, v_bounds)
     return solution
+    # example formatting
+    # field = [x**2*y, x**3/3, x*y]
+    # line = [u*cos(v), u*sin(v), u**2*(sin(v)**2 - cos(v)**2)]
+    # u_bounds = [0, 2]
+    # v_bounds = [0, 2*pi]
+
+
+def gauss(vector_field, r_bounds, u_bounds, v_bounds):
+    parameterised = [r * sin(u) * cos(v), r * sin(u) * sin(v), r * cos(u)]
+    div = divergent(vector_field)
+    subs = div.subs({x: parameterised[0], y: parameterised[1], z: parameterised[2]})
+    simplified = sym.simplify(subs)
+    changed = r ** 2 * sin(u)
+    integral = simplified * changed
+
+    ans = sym.integrate(integral, (r, r_bounds[0], r_bounds[1]), (u, u_bounds[0], u_bounds[1]),
+                        (v, v_bounds[0], v_bounds[1]))
+    return ans
+    # example : this is for spherical polar co-ordinates
+    # r_bounds = [0, 1]
+    # u_bounds = [0, pi]
+    # v_bounds = [0, 2*pi]
+    # vector_field = [x*y**2, y*cos(z)+y*z**2, x**2*z-sin(z)]
 
 
 def determinant(mat):
     if len(mat) == 2:
-        c = mat[0][0]*mat[1][1]-mat[1][0]*mat[0][1]
-        return c
+        det = mat[0][0]*mat[1][1]-mat[1][0]*mat[0][1]
+        return det
     elif len(mat) == 3:
-        i = mat[1][1]*mat[2][2]-mat[1][2]*mat[2][1]
-        j = mat[1][0]*mat[2][2]-mat[1][2]*mat[2][0]
-        k = mat[1][0]*mat[2][1]-mat[1][1]*mat[2][0]
-        c = mat[0][0]*i - mat[0][1]*j + mat[0][2]*k
-        return c
+        I = mat[1][1]*mat[2][2]-mat[1][2]*mat[2][1]
+        J = mat[1][0]*mat[2][2]-mat[1][2]*mat[2][0]
+        K = mat[1][0]*mat[2][1]-mat[1][1]*mat[2][0]
+        det = mat[0][0]*I - mat[0][1]*J + mat[0][2]*K
+        return det
     else:
         print('dickhead')
 
 
-def jacobian(X, Y, Z, variables):
-    term = [X, Y, Z]
+def jacobian(term, variables):
     jacob = []
 
     for i in range(3):

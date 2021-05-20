@@ -184,10 +184,12 @@ def half_range_sine_series_discontinuous(function1, function2, period, variable)
 def fourier_transform(function1, function2, limits1, limits2):
     j = sym.sqrt(-1)
     simplified1, simplified2 = 0, 0
+    w = sym.symbols('w', real=True)
     integral = function1 * exp(-j * w * t)
     ans = sym.integrate(integral, (t, limits1[0], limits1[1])).args
     for args in ans:
         if args[0] != 0 and type(args[0]) != sym.integrals.integrals.Integral:
+            print(args[0])
             simplified1 = sym.simplify(args[0])
     print("Integral of function 1 is: {}".format(simplified1))
 

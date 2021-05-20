@@ -17,14 +17,14 @@ T = C*cos(k*c*t) + D*sin(k*c*t)
 u_t = sym.diff(T, t)
 u_x = sym.diff(X, x)
 
-period = pi
-
+period = 2
+function = x*(x-1)*(x-2)
 # there is a lot of potential information that can be used to define the boundary and initial conditions
 # Easier to input and deal with them in the form of a dictionary
-conditions = {X: {"term": 'X', "variable": None}, # x, "values": {0: 0, pi: 0}},
-              T: {"term": 'T', "variable": t, "values": {0: sin(x)}},
-              u_x: {"term": 'u_x', "variable": x, "values": {0: 0, pi: 0}},
-              u_t: {"term": 'u_t', "variable": t, "values": {0: 0}}
+conditions = {X: {"term": 'X', "variable": None},  # x, "values": {0: 0, L: 0}},
+              T: {"term": 'T', "variable": t, "values": {0: 0}},
+              u_x: {"term": 'u_x', "variable": x, "values": {0: 0, 2: 0}},
+              u_t: {"term": 'u_t', "variable": t, "values": {0: function}}
               }
 
 #conditions = {X: {"term": 'X', "variable": x, "values": {0: 0, pi: 0}},
@@ -67,6 +67,7 @@ for keys, values in conditions.items():
 
 total_function = b*(T*X).subs({A: 1, B: 1, C: 1, D: 1})
 
+print(total_function)
 if function_type == 'X' or function_type == 'T':
     diff = total_function.subs(function_variable, function_value)
 elif function_type == 'u_x':
