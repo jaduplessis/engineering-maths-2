@@ -1,6 +1,9 @@
 import sympy as sym
 import re
 from sympy import cos, sin, pi, sympify, exp
+import matplotlib.pyplot as plt
+import numpy as np
+
 x, y, z, i, j, k, t, u, v, r, a, b, c, n, L, w, T, s \
     = sym.symbols('x y z i j k t u v r a b c n L w T s')
 A = sym.symbols('A', real=True, positive=True)
@@ -187,10 +190,11 @@ def fourier_transform(function1, function2, limits1, limits2):
     w = sym.symbols('w', real=True)
     integral = function1 * exp(-j * w * t)
     ans = sym.integrate(integral, (t, limits1[0], limits1[1])).args
+
     for args in ans:
         if args[0] != 0 and type(args[0]) != sym.integrals.integrals.Integral:
-            print(args[0])
             simplified1 = sym.simplify(args[0])
+            break
     print("Integral of function 1 is: {}".format(simplified1))
 
     integral = function2 * exp(-j * w * t)
@@ -247,9 +251,7 @@ def initial_value_problems_laplace(pde, right_side, x_0, x_1):
     df1 = s*F - x_0
     s_domain = laplace_transform(right_side)
     transfer = pde[0] * df2 + pde[1] * df1 + pde[2] * F - s_domain
-    print(transfer.simplify())
     ans = sym.solve(transfer, F)
-    print(ans)
     function = inverse_laplace_transform(ans[0])
     print(function.evalf().simplify())
     return function
@@ -292,6 +294,16 @@ def simultaneous_partial_differential(eq_1_coeff, result_1, eq_2_coeff, result_2
     # initial_values = [2, 2]
 
 
+def magnitude_spectrum(function):
+    w = np.arange(-4 * pi, 4 * pi, 0.1)
+    y = []
+    for val in w:
+        y.append(abs(function(val)))
+
+    plt.plot(w, y)
+    plt.show()
+    # example
+    # function = lambda x: 2*sin(x)/x
 
 
 
