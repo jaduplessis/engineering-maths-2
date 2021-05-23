@@ -4,6 +4,9 @@ import re
 import numpy as np
 from random import choices
 from scipy.stats import chisquare, chi2_contingency, chi2, poisson
+import sympy as sym
+x, y, z, i, j, k, t, u, v, r, a, b, c, n, L, w, T, s \
+    = sym.symbols('x y z i j k t u v r a b c n L w T s')
 
 
 def p_value_to_z_score(p_value):
@@ -157,6 +160,12 @@ def t_critical_value(significance_value, dof, number_of_tails):
     return critical_value
 
 
+def normal_critical_value(significance_value, number_of_tails):
+    significance_value = significance_value / number_of_tails
+    critical_value = abs(stats.norm.ppf(significance_value))
+    return critical_value
+
+
 def get_t_score_from_data(sample, population_mean):
     sample_mean = mean(sample)
     sample_deviation = standard_deviation(sample)
@@ -271,6 +280,7 @@ def statistically_significant(significance, sample1_size, sample1_mean, sample1_
     else:
         print("Null hypothesis can be rejected")
     print("Test statistic is: {}. Critical value is {}.".format(test_statistic, critical_value))
+    # this is testing if two sets of data are significant
 
 
 def residual(function, x_data, y_data):
@@ -301,4 +311,24 @@ def paired_t_test(data_1, data_2):
     # mu is the mean differences between the sets of values
     # data1 = [140, 190, 50, 80]
     # data2 = [145, 192, 62, 87]
+
+
+def observations_needed(false_positive, false_negative, expected_mean, sd, alternative_mean, number_of_tails):
+    z_score = p_value_to_z_score(false_negative)
+    alpha = normal_critical_value(false_positive, number_of_tails)
+
+    X_c = expected_mean + alpha * 20 / sym.sqrt(n)
+    ans = sym.solve((X_c - 1060) / (20 / sym.sqrt(n)) - z_score)[0]
+    number = math.ceil(ans)
+    print('Minimum number of observations required is: {}'.format(number))
+    return ans
+    # example formatting
+    # false_positive = 0.1  |  this is the same as the significance
+    # false_negative = 0.2
+    # expected_mean = 1050
+    # sd = 20
+    # new_mean = 1060
+    # number_of_tails = 2
+
+
 

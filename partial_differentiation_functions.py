@@ -295,24 +295,25 @@ def simultaneous_partial_differential(eq_1_coeff, result_1, eq_2_coeff, result_2
 
 
 def magnitude_spectrum(function):
-    w = np.arange(-4 * pi, 4 * pi, 0.1)
+    x = np.arange(-4 * pi, 4 * pi, 0.1)
     y = []
-    for val in w:
+    for val in x:
         y.append(abs(function(val)))
 
-    plt.plot(w, y)
+    plt.plot(x, y)
     plt.show()
     # example
     # function = lambda x: 2*sin(x)/x
 
 
+def working_on():
+    spectrum = lambda n: -2 * (-1) ** n / (pi * n)
 
+    X = np.arange(-10, 11, 1)
+    Y = []
 
+    for val in X:
+        Y.append(abs(spectrum(val)))
 
-
-
-
-
-
-
-
+    plt.plot(X, Y)
+    plt.show()

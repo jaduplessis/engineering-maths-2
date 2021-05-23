@@ -383,7 +383,6 @@ def stokes(line_c, vector_field, u_bounds, v_bounds):
 
 def gauss(vector_field, r_bounds, u_bounds, v_bounds, parameterised):
     div = divergent(vector_field)
-    print(div)
     subs = div.subs({x: parameterised[0], y: parameterised[1], z: parameterised[2]})
     simplified = sym.simplify(subs)
     changed = jacobian(parameterised, [r, u, v])
