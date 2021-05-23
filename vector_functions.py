@@ -337,11 +337,12 @@ def flux_integral(vector_field, surface, u_bounds, v_bounds, param):
         r_v.append(sym.diff(axis, v))
 
     dA = cross_product(r_u, r_v)
+    print(dA)
     integral = dot_product(vector_field, dA)
     integral = integral.subs({x: param[0], y: param[1], z:param[2]})
     flux = double_integral(integral, u, u_bounds, v, v_bounds)
     return flux
-    # example formatting
+    # example formatting | surface and param may be the same.
     # surface = [u*cos(v), u*sin(v), 0]
     # field = [x*exp(y), y*exp(x), x**2]
     # u_bounds = [0, 1]
@@ -397,6 +398,7 @@ def gauss(vector_field, r_bounds, u_bounds, v_bounds, parameterised):
     # v_bounds = [0, 2*pi]
     # vector_field = [x*y**2, y*cos(z)+y*z**2, x**2*z-sin(z)]
     # parameterised = [r * sin(u) * cos(v), r * sin(u) * sin(v), r * cos(u)]
+    # If integral is in x, y, z give param as : [r, u, v]
 
 
 def determinant(mat):
